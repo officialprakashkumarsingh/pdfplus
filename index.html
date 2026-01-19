@@ -26,6 +26,9 @@
     <!-- Handwriting Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
     
+    <!-- Page Flip Library -->
+    <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
+
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="h-screen w-full overflow-hidden flex flex-col relative bg-slate-50">
@@ -147,6 +150,50 @@
                         <i data-lucide="hash" class="w-5 h-5"></i>
                     </div>
                     <span class="font-semibold text-gray-700 text-xs">Page Numbers</span>
+                </div>
+
+                <!-- 12. Doc Scanner -->
+                <div onclick="openTool('scanner')" class="col-span-2 bg-slate-800 p-5 rounded-2xl flex items-center justify-between gap-4 cursor-pointer btn-press border border-slate-700 hover:border-slate-600 shadow-sm relative overflow-hidden group">
+                    <div class="flex flex-col gap-1 z-10">
+                        <span class="font-bold text-white text-lg">Doc Scanner</span>
+                        <span class="text-slate-400 text-xs">Camera to PDF + Filters 📸</span>
+                    </div>
+                    <div class="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center text-white shadow-sm z-10">
+                        <i data-lucide="scan" class="w-6 h-6"></i>
+                    </div>
+                    <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-slate-700 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                </div>
+
+                <!-- 13. Sign PDF -->
+                <div onclick="openTool('sign')" class="bg-blue-50 p-4 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer btn-press border border-blue-100 hover:border-blue-200 h-32">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-blue-500">
+                        <i data-lucide="pen-tool" class="w-5 h-5"></i>
+                    </div>
+                    <span class="font-semibold text-gray-700 text-xs">Sign PDF</span>
+                </div>
+
+                <!-- 14. Text to PDF -->
+                <div onclick="openTool('text2pdf')" class="bg-emerald-50 p-4 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer btn-press border border-emerald-100 hover:border-emerald-200 h-32">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-emerald-500">
+                        <i data-lucide="type" class="w-5 h-5"></i>
+                    </div>
+                    <span class="font-semibold text-gray-700 text-xs">Text to PDF</span>
+                </div>
+
+                <!-- 15. Compress -->
+                <div onclick="openTool('compress')" class="bg-rose-50 p-4 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer btn-press border border-rose-100 hover:border-rose-200 h-32">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-rose-500">
+                        <i data-lucide="minimize-2" class="w-5 h-5"></i>
+                    </div>
+                    <span class="font-semibold text-gray-700 text-xs">Compress</span>
+                </div>
+
+                <!-- 16. Tint/Color -->
+                <div onclick="openTool('tint')" class="bg-amber-50 p-4 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer btn-press border border-amber-100 hover:border-amber-200 h-32">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-amber-500">
+                        <i data-lucide="palette" class="w-5 h-5"></i>
+                    </div>
+                    <span class="font-semibold text-gray-700 text-xs">Page Color</span>
                 </div>
             </div>
         </div>
@@ -319,6 +366,10 @@
                     <button onclick="changePage(1)" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
                 </div>
                 <div class="flex items-center gap-2">
+                    <button onclick="toggleFlipMode()" id="btnFlipMode" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600 flex items-center gap-1 text-xs">
+                        <i data-lucide="book-open" class="w-4 h-4"></i> Flip
+                    </button>
+                    <div class="w-px h-6 bg-gray-200 mx-1"></div>
                     <button onclick="changeZoom(-0.2)" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600"><i data-lucide="zoom-out" class="w-5 h-5"></i></button>
                     <button onclick="changeZoom(0.2)" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600"><i data-lucide="zoom-in" class="w-5 h-5"></i></button>
                 </div>
@@ -331,7 +382,10 @@
                         <button onclick="document.getElementById('viewerInput').click()" class="bg-teal-500 text-white px-4 py-2 rounded-lg shadow-md shadow-teal-200">Open PDF</button>
                     </div>
                 </div>
-                <canvas id="pdfViewerCanvas" class="shadow-lg hidden"></canvas>
+                <!-- Normal Canvas -->
+                <canvas id="pdfViewerCanvas" class="shadow-lg hidden transition-transform origin-top"></canvas>
+                <!-- Flip Book Container -->
+                <div id="flipBookContainer" class="hidden shadow-2xl"></div>
             </div>
             <input type="file" id="viewerInput" accept=".pdf" class="hidden" onchange="handleFileSelect('viewer')">
         </div>
@@ -410,6 +464,117 @@
 
                 <div class="flex-1"></div>
                 <button id="btn-pagenumber-action" onclick="processPageNumber()" disabled class="w-full bg-pink-600 text-white font-semibold py-4 rounded-xl shadow-lg shadow-pink-200 btn-press disabled:opacity-50">Add Numbers</button>
+            </div>
+        </div>
+
+        <!-- 12. DOC SCANNER TOOL -->
+        <div id="tool-scanner" class="screen flex-col h-full hidden bg-black">
+            <div class="flex-1 relative flex flex-col overflow-hidden">
+                <video id="scannerVideo" autoplay playsinline class="w-full h-full object-cover"></video>
+                <div id="scannerOverlay" class="absolute inset-0 pointer-events-none border-[20px] border-black/50 hidden"></div>
+
+                <!-- Controls -->
+                <div class="absolute bottom-0 left-0 right-0 p-8 flex items-center justify-between bg-gradient-to-t from-black/80 to-transparent">
+                    <button onclick="showHome()" class="p-4 rounded-full bg-white/10 backdrop-blur text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+                    <button onclick="captureScan()" class="w-16 h-16 rounded-full border-4 border-white bg-white/20 flex items-center justify-center ring-4 ring-black/20"></button>
+                    <button onclick="finishScan()" id="btn-finish-scan" class="p-4 rounded-full bg-blue-500 text-white shadow-lg relative">
+                        <i data-lucide="check" class="w-6 h-6"></i>
+                        <span id="scanCount" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-[10px] flex items-center justify-center font-bold hidden">0</span>
+                    </button>
+                </div>
+
+                <div id="scanFlash" class="absolute inset-0 bg-white opacity-0 pointer-events-none transition-opacity duration-100"></div>
+            </div>
+        </div>
+
+        <!-- 13. SIGN PDF TOOL -->
+        <div id="tool-sign" class="screen flex-col h-full hidden bg-white">
+            <div class="p-6 flex-1 flex flex-col gap-6">
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-gray-800">Sign PDF</h3>
+                    <p class="text-xs text-gray-500">Draw signature & place.</p>
+                </div>
+                <div class="bg-blue-50/50 border-2 border-dashed border-blue-200 rounded-xl p-6 flex flex-col items-center justify-center relative h-32">
+                    <input type="file" id="signInput" accept=".pdf" class="absolute inset-0 opacity-0 cursor-pointer z-10" onchange="handleFileSelect('sign')">
+                    <p id="signFileName" class="text-sm font-medium text-blue-600 truncate max-w-[200px]">Select PDF</p>
+                </div>
+                <div id="signPad" class="hidden flex-col gap-2 flex-1">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Draw Signature</p>
+                    <canvas id="signatureCanvas" class="w-full h-40 bg-gray-50 border border-gray-200 rounded-xl touch-none"></canvas>
+                    <button onclick="clearSignature()" class="text-xs text-red-500 font-medium self-end">Clear</button>
+                </div>
+                <div class="flex-1"></div>
+                <button id="btn-sign-action" onclick="processSign()" disabled class="w-full bg-blue-600 text-white font-semibold py-4 rounded-xl shadow-lg shadow-blue-200 btn-press disabled:opacity-50">Sign & Save</button>
+            </div>
+        </div>
+
+        <!-- 14. TEXT TO PDF TOOL -->
+        <div id="tool-text2pdf" class="screen flex-col h-full hidden bg-white">
+            <div class="p-6 flex-1 flex flex-col gap-6">
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-gray-800">Text to PDF</h3>
+                    <p class="text-xs text-gray-500">Create PDF from text.</p>
+                </div>
+                <textarea id="text2pdfInput" class="w-full flex-1 bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none" placeholder="Type or paste text here..."></textarea>
+                <div class="flex gap-3">
+                    <select id="text2pdfFont" class="w-1/2 bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm">
+                        <option value="Helvetica">Helvetica</option>
+                        <option value="Times-Roman">Times New Roman</option>
+                        <option value="Courier">Courier</option>
+                    </select>
+                    <input type="number" id="text2pdfSize" value="12" class="w-1/2 bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm">
+                </div>
+                <button id="btn-text2pdf-action" onclick="processTextToPdf()" class="w-full bg-emerald-600 text-white font-semibold py-4 rounded-xl shadow-lg shadow-emerald-200 btn-press">Generate PDF</button>
+            </div>
+        </div>
+
+        <!-- 15. COMPRESS TOOL -->
+        <div id="tool-compress" class="screen flex-col h-full hidden bg-white">
+             <div class="p-6 flex-1 flex flex-col gap-6">
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-gray-800">Compress PDF</h3>
+                    <p class="text-xs text-gray-500">Reduce file size.</p>
+                </div>
+                <div class="bg-rose-50/50 border-2 border-dashed border-rose-200 rounded-xl p-6 flex flex-col items-center justify-center relative h-32">
+                    <input type="file" id="compressInput" accept=".pdf" class="absolute inset-0 opacity-0 cursor-pointer z-10" onchange="handleFileSelect('compress')">
+                    <p id="compressFileName" class="text-sm font-medium text-rose-600 truncate max-w-[200px]">Select PDF</p>
+                </div>
+                <div id="compressOptions" class="hidden flex-col gap-3">
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wide">Compression Level</label>
+                    <div class="flex justify-between text-xs text-gray-400 px-1">
+                        <span>Low</span>
+                        <span>Med</span>
+                        <span>High</span>
+                    </div>
+                    <input type="range" id="compressLevel" min="0.1" max="0.9" step="0.1" value="0.5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                </div>
+                <div class="flex-1"></div>
+                <button id="btn-compress-action" onclick="processCompress()" disabled class="w-full bg-rose-500 text-white font-semibold py-4 rounded-xl shadow-lg shadow-rose-200 btn-press disabled:opacity-50">Compress PDF</button>
+            </div>
+        </div>
+
+        <!-- 16. TINT TOOL -->
+        <div id="tool-tint" class="screen flex-col h-full hidden bg-white">
+            <div class="p-6 flex-1 flex flex-col gap-6">
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-gray-800">Page Color</h3>
+                    <p class="text-xs text-gray-500">Change background color.</p>
+                </div>
+                <div class="bg-amber-50/50 border-2 border-dashed border-amber-200 rounded-xl p-6 flex flex-col items-center justify-center relative h-32">
+                    <input type="file" id="tintInput" accept=".pdf" class="absolute inset-0 opacity-0 cursor-pointer z-10" onchange="handleFileSelect('tint')">
+                    <p id="tintFileName" class="text-sm font-medium text-amber-600 truncate max-w-[200px]">Select PDF</p>
+                </div>
+                <div id="tintOptions" class="hidden flex-col gap-4">
+                    <div class="flex gap-2 justify-center">
+                        <button onclick="setTintColor('#fefce8')" class="w-8 h-8 rounded-full bg-yellow-50 border border-gray-200"></button>
+                        <button onclick="setTintColor('#f0f9ff')" class="w-8 h-8 rounded-full bg-sky-50 border border-gray-200"></button>
+                        <button onclick="setTintColor('#f0fdf4')" class="w-8 h-8 rounded-full bg-green-50 border border-gray-200"></button>
+                        <button onclick="setTintColor('#18181b')" class="w-8 h-8 rounded-full bg-zinc-900 border border-gray-200"></button>
+                    </div>
+                    <input type="color" id="tintColor" value="#fefce8" class="w-full h-10 p-1 rounded-lg border border-gray-200">
+                </div>
+                <div class="flex-1"></div>
+                <button id="btn-tint-action" onclick="processTint()" disabled class="w-full bg-amber-500 text-white font-semibold py-4 rounded-xl shadow-lg shadow-amber-200 btn-press disabled:opacity-50">Apply Color</button>
             </div>
         </div>
 
