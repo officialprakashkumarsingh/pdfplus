@@ -26,56 +26,10 @@
     <!-- Handwriting Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
     
-    <script>
-        // Configure PDF.js Worker
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    </script>
+    <!-- Page Flip Library -->
+    <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js"></script>
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; /* Slate 50 - Clean Flat */
-            color: #1e293b;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* Modern Loader */
-        .loader {
-            width: 48px;
-            height: 48px;
-            border: 4px solid #e2e8f0;
-            border-bottom-color: #ef4444; /* Red Brand Color */
-            border-radius: 50%;
-            display: inline-block;
-            box-sizing: border-box;
-            animation: rotation 1s linear infinite;
-        }
-
-        @keyframes rotation {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* App Screen Transitions */
-        .screen { display: none; animation: fadeIn 0.3s ease-out; }
-        .screen.active { display: flex; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Button Press Effect */
-        .btn-press:active { transform: scale(0.96); opacity: 0.9; transition: transform 0.1s; }
-        
-        /* Notebook Preview Canvas (Hidden) */
-        #notebookCanvas { display: none; }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="h-screen w-full overflow-hidden flex flex-col relative bg-slate-50">
 
@@ -104,7 +58,7 @@
             </div>
 
             <!-- Tools Grid -->
-            <div class="grid grid-cols-2 gap-4 pb-12">
+            <div class="grid grid-cols-2 gap-4 pb-12" id="tools-grid">
                 <!-- 1. Notebook (Featured) -->
                 <div onclick="openTool('notebook')" class="col-span-2 bg-yellow-50 p-5 rounded-2xl flex items-center justify-between gap-4 cursor-pointer btn-press border border-yellow-100 hover:border-yellow-200 shadow-sm relative overflow-hidden group">
                     <div class="flex flex-col gap-1 z-10">
@@ -164,6 +118,82 @@
                         <i data-lucide="layout-grid" class="w-5 h-5"></i>
                     </div>
                     <span class="font-semibold text-gray-700 text-xs">Collage</span>
+                </div>
+
+                <!-- 8. PDF Viewer -->
+                <div onclick="openTool('viewer')" class="bg-teal-50 p-4 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer btn-press border border-teal-100 hover:border-teal-200 h-32">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-teal-500">
+                        <i data-lucide="eye" class="w-5 h-5"></i>
+                    </div>
+                    <span class="font-semibold text-gray-700 text-xs">Viewer</span>
+                </div>
+
+                <!-- 9. Organize -->
+                <div onclick="openTool('organize')" class="bg-purple-50 p-4 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer btn-press border border-purple-100 hover:border-purple-200 h-32">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-purple-500">
+                        <i data-lucide="layout-list" class="w-5 h-5"></i>
+                    </div>
+                    <span class="font-semibold text-gray-700 text-xs">Organize</span>
+                </div>
+
+                <!-- 10. Watermark -->
+                <div onclick="openTool('watermark')" class="bg-cyan-50 p-4 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer btn-press border border-cyan-100 hover:border-cyan-200 h-32">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-cyan-500">
+                        <i data-lucide="stamp" class="w-5 h-5"></i>
+                    </div>
+                    <span class="font-semibold text-gray-700 text-xs">Watermark</span>
+                </div>
+
+                <!-- 11. Page Numbers -->
+                <div onclick="openTool('pagenumber')" class="bg-pink-50 p-4 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer btn-press border border-pink-100 hover:border-pink-200 h-32">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-pink-500">
+                        <i data-lucide="hash" class="w-5 h-5"></i>
+                    </div>
+                    <span class="font-semibold text-gray-700 text-xs">Page Numbers</span>
+                </div>
+
+                <!-- 12. Doc Scanner -->
+                <div onclick="openTool('scanner')" class="col-span-2 bg-slate-800 p-5 rounded-2xl flex items-center justify-between gap-4 cursor-pointer btn-press border border-slate-700 hover:border-slate-600 shadow-sm relative overflow-hidden group">
+                    <div class="flex flex-col gap-1 z-10">
+                        <span class="font-bold text-white text-lg">Doc Scanner</span>
+                        <span class="text-slate-400 text-xs">Camera to PDF + Filters 📸</span>
+                    </div>
+                    <div class="w-12 h-12 bg-slate-700 rounded-full flex items-center justify-center text-white shadow-sm z-10">
+                        <i data-lucide="scan" class="w-6 h-6"></i>
+                    </div>
+                    <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-slate-700 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+                </div>
+
+                <!-- 13. Sign PDF -->
+                <div onclick="openTool('sign')" class="bg-blue-50 p-4 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer btn-press border border-blue-100 hover:border-blue-200 h-32">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-blue-500">
+                        <i data-lucide="pen-tool" class="w-5 h-5"></i>
+                    </div>
+                    <span class="font-semibold text-gray-700 text-xs">Sign PDF</span>
+                </div>
+
+                <!-- 14. Text to PDF -->
+                <div onclick="openTool('text2pdf')" class="bg-emerald-50 p-4 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer btn-press border border-emerald-100 hover:border-emerald-200 h-32">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-emerald-500">
+                        <i data-lucide="type" class="w-5 h-5"></i>
+                    </div>
+                    <span class="font-semibold text-gray-700 text-xs">Text to PDF</span>
+                </div>
+
+                <!-- 15. Compress -->
+                <div onclick="openTool('compress')" class="bg-rose-50 p-4 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer btn-press border border-rose-100 hover:border-rose-200 h-32">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-rose-500">
+                        <i data-lucide="minimize-2" class="w-5 h-5"></i>
+                    </div>
+                    <span class="font-semibold text-gray-700 text-xs">Compress</span>
+                </div>
+
+                <!-- 16. Tint/Color -->
+                <div onclick="openTool('tint')" class="bg-amber-50 p-4 rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer btn-press border border-amber-100 hover:border-amber-200 h-32">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-amber-500">
+                        <i data-lucide="palette" class="w-5 h-5"></i>
+                    </div>
+                    <span class="font-semibold text-gray-700 text-xs">Page Color</span>
                 </div>
             </div>
         </div>
@@ -327,6 +357,227 @@
             </div>
         </div>
 
+        <!-- 8. PDF VIEWER TOOL -->
+        <div id="tool-viewer" class="screen flex-col h-full hidden bg-white">
+            <div class="flex-none p-4 border-b border-gray-100 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <button onclick="changePage(-1)" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+                    <span id="pageInfo" class="text-sm font-medium text-gray-600">Page 1 / 1</span>
+                    <button onclick="changePage(1)" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleFlipMode()" id="btnFlipMode" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600 flex items-center gap-1 text-xs">
+                        <i data-lucide="book-open" class="w-4 h-4"></i> Flip
+                    </button>
+                    <div class="w-px h-6 bg-gray-200 mx-1"></div>
+                    <button onclick="changeZoom(-0.2)" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600"><i data-lucide="zoom-out" class="w-5 h-5"></i></button>
+                    <button onclick="changeZoom(0.2)" class="p-2 rounded-lg hover:bg-gray-100 text-gray-600"><i data-lucide="zoom-in" class="w-5 h-5"></i></button>
+                </div>
+            </div>
+
+            <div id="viewerContainer" class="flex-1 overflow-auto bg-gray-100 flex justify-center p-4 relative">
+                <div id="viewerPlaceholder" class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
+                    <div class="bg-white p-6 rounded-xl shadow-sm text-center pointer-events-auto">
+                        <p class="text-gray-500 mb-4">Select a PDF to view</p>
+                        <button onclick="document.getElementById('viewerInput').click()" class="bg-teal-500 text-white px-4 py-2 rounded-lg shadow-md shadow-teal-200">Open PDF</button>
+                    </div>
+                </div>
+                <!-- Normal Canvas -->
+                <canvas id="pdfViewerCanvas" class="shadow-lg hidden transition-transform origin-top"></canvas>
+                <!-- Flip Book Container -->
+                <div id="flipBookContainer" class="hidden shadow-2xl"></div>
+            </div>
+            <input type="file" id="viewerInput" accept=".pdf" class="hidden" onchange="handleFileSelect('viewer')">
+        </div>
+
+        <!-- 9. ORGANIZE TOOL -->
+        <div id="tool-organize" class="screen flex-col h-full hidden bg-white">
+            <div class="p-6 flex-1 flex flex-col gap-6">
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-gray-800">Organize PDF</h3>
+                    <p class="text-xs text-gray-500">Sort, Rotate, Delete Pages</p>
+                </div>
+
+                <div id="organizeUpload" class="bg-purple-50/50 border-2 border-dashed border-purple-200 rounded-xl p-6 flex flex-col items-center justify-center relative h-32">
+                    <input type="file" id="organizeInput" accept=".pdf" class="absolute inset-0 opacity-0 cursor-pointer z-10" onchange="handleFileSelect('organize')">
+                    <i data-lucide="layout-list" class="w-8 h-8 text-purple-400 mb-2"></i>
+                    <p class="text-sm font-medium text-purple-600">Select PDF</p>
+                </div>
+
+                <div id="organizeContainer" class="hidden flex-1 overflow-y-auto bg-gray-50 rounded-xl p-4 grid grid-cols-2 gap-4">
+                    <!-- Pages injected here -->
+                </div>
+
+                <button id="btn-organize-action" onclick="processOrganize()" disabled class="w-full bg-purple-600 text-white font-semibold py-4 rounded-xl shadow-lg shadow-purple-200 btn-press disabled:opacity-50">Save PDF</button>
+            </div>
+        </div>
+
+        <!-- 10. WATERMARK TOOL -->
+        <div id="tool-watermark" class="screen flex-col h-full hidden bg-white">
+            <div class="p-6 flex-1 flex flex-col gap-6">
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-gray-800">Watermark PDF</h3>
+                    <p class="text-xs text-gray-500">Add text stamp</p>
+                </div>
+
+                <div class="bg-cyan-50/50 border-2 border-dashed border-cyan-200 rounded-xl p-6 flex flex-col items-center justify-center relative h-32">
+                    <input type="file" id="watermarkInput" accept=".pdf" class="absolute inset-0 opacity-0 cursor-pointer z-10" onchange="handleFileSelect('watermark')">
+                    <p id="watermarkFileName" class="text-sm font-medium text-cyan-600 truncate max-w-[200px]">Select PDF</p>
+                </div>
+
+                <div id="watermarkOptions" class="hidden flex-col gap-3">
+                    <input type="text" id="watermarkText" placeholder="Watermark Text" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    <div class="flex gap-2">
+                        <input type="color" id="watermarkColor" value="#ff0000" class="h-12 w-12 p-1 bg-white border rounded-lg cursor-pointer">
+                        <input type="number" id="watermarkSize" value="50" placeholder="Size" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                </div>
+
+                <div class="flex-1"></div>
+                <button id="btn-watermark-action" onclick="processWatermark()" disabled class="w-full bg-cyan-600 text-white font-semibold py-4 rounded-xl shadow-lg shadow-cyan-200 btn-press disabled:opacity-50">Apply Watermark</button>
+            </div>
+        </div>
+
+        <!-- 11. PAGE NUMBERS TOOL -->
+        <div id="tool-pagenumber" class="screen flex-col h-full hidden bg-white">
+            <div class="p-6 flex-1 flex flex-col gap-6">
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-gray-800">Page Numbers</h3>
+                    <p class="text-xs text-gray-500">Add pagination</p>
+                </div>
+
+                <div class="bg-pink-50/50 border-2 border-dashed border-pink-200 rounded-xl p-6 flex flex-col items-center justify-center relative h-32">
+                    <input type="file" id="pagenumberInput" accept=".pdf" class="absolute inset-0 opacity-0 cursor-pointer z-10" onchange="handleFileSelect('pagenumber')">
+                    <p id="pagenumberFileName" class="text-sm font-medium text-pink-600 truncate max-w-[200px]">Select PDF</p>
+                </div>
+
+                <div id="pagenumberOptions" class="hidden flex-col gap-3">
+                    <select id="pagenumberPos" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500">
+                        <option value="bottom-center">Bottom Center</option>
+                        <option value="bottom-right">Bottom Right</option>
+                        <option value="bottom-left">Bottom Left</option>
+                        <option value="top-center">Top Center</option>
+                        <option value="top-right">Top Right</option>
+                        <option value="top-left">Top Left</option>
+                    </select>
+                </div>
+
+                <div class="flex-1"></div>
+                <button id="btn-pagenumber-action" onclick="processPageNumber()" disabled class="w-full bg-pink-600 text-white font-semibold py-4 rounded-xl shadow-lg shadow-pink-200 btn-press disabled:opacity-50">Add Numbers</button>
+            </div>
+        </div>
+
+        <!-- 12. DOC SCANNER TOOL -->
+        <div id="tool-scanner" class="screen flex-col h-full hidden bg-black">
+            <div class="flex-1 relative flex flex-col overflow-hidden">
+                <video id="scannerVideo" autoplay playsinline class="w-full h-full object-cover"></video>
+                <div id="scannerOverlay" class="absolute inset-0 pointer-events-none border-[20px] border-black/50 hidden"></div>
+
+                <!-- Controls -->
+                <div class="absolute bottom-0 left-0 right-0 p-8 flex items-center justify-between bg-gradient-to-t from-black/80 to-transparent">
+                    <button onclick="showHome()" class="p-4 rounded-full bg-white/10 backdrop-blur text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+                    <button onclick="captureScan()" class="w-16 h-16 rounded-full border-4 border-white bg-white/20 flex items-center justify-center ring-4 ring-black/20"></button>
+                    <button onclick="finishScan()" id="btn-finish-scan" class="p-4 rounded-full bg-blue-500 text-white shadow-lg relative">
+                        <i data-lucide="check" class="w-6 h-6"></i>
+                        <span id="scanCount" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-[10px] flex items-center justify-center font-bold hidden">0</span>
+                    </button>
+                </div>
+
+                <div id="scanFlash" class="absolute inset-0 bg-white opacity-0 pointer-events-none transition-opacity duration-100"></div>
+            </div>
+        </div>
+
+        <!-- 13. SIGN PDF TOOL -->
+        <div id="tool-sign" class="screen flex-col h-full hidden bg-white">
+            <div class="p-6 flex-1 flex flex-col gap-6">
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-gray-800">Sign PDF</h3>
+                    <p class="text-xs text-gray-500">Draw signature & place.</p>
+                </div>
+                <div class="bg-blue-50/50 border-2 border-dashed border-blue-200 rounded-xl p-6 flex flex-col items-center justify-center relative h-32">
+                    <input type="file" id="signInput" accept=".pdf" class="absolute inset-0 opacity-0 cursor-pointer z-10" onchange="handleFileSelect('sign')">
+                    <p id="signFileName" class="text-sm font-medium text-blue-600 truncate max-w-[200px]">Select PDF</p>
+                </div>
+                <div id="signPad" class="hidden flex-col gap-2 flex-1">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Draw Signature</p>
+                    <canvas id="signatureCanvas" class="w-full h-40 bg-gray-50 border border-gray-200 rounded-xl touch-none"></canvas>
+                    <button onclick="clearSignature()" class="text-xs text-red-500 font-medium self-end">Clear</button>
+                </div>
+                <div class="flex-1"></div>
+                <button id="btn-sign-action" onclick="processSign()" disabled class="w-full bg-blue-600 text-white font-semibold py-4 rounded-xl shadow-lg shadow-blue-200 btn-press disabled:opacity-50">Sign & Save</button>
+            </div>
+        </div>
+
+        <!-- 14. TEXT TO PDF TOOL -->
+        <div id="tool-text2pdf" class="screen flex-col h-full hidden bg-white">
+            <div class="p-6 flex-1 flex flex-col gap-6">
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-gray-800">Text to PDF</h3>
+                    <p class="text-xs text-gray-500">Create PDF from text.</p>
+                </div>
+                <textarea id="text2pdfInput" class="w-full flex-1 bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none" placeholder="Type or paste text here..."></textarea>
+                <div class="flex gap-3">
+                    <select id="text2pdfFont" class="w-1/2 bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm">
+                        <option value="Helvetica">Helvetica</option>
+                        <option value="Times-Roman">Times New Roman</option>
+                        <option value="Courier">Courier</option>
+                    </select>
+                    <input type="number" id="text2pdfSize" value="12" class="w-1/2 bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm">
+                </div>
+                <button id="btn-text2pdf-action" onclick="processTextToPdf()" class="w-full bg-emerald-600 text-white font-semibold py-4 rounded-xl shadow-lg shadow-emerald-200 btn-press">Generate PDF</button>
+            </div>
+        </div>
+
+        <!-- 15. COMPRESS TOOL -->
+        <div id="tool-compress" class="screen flex-col h-full hidden bg-white">
+             <div class="p-6 flex-1 flex flex-col gap-6">
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-gray-800">Compress PDF</h3>
+                    <p class="text-xs text-gray-500">Reduce file size.</p>
+                </div>
+                <div class="bg-rose-50/50 border-2 border-dashed border-rose-200 rounded-xl p-6 flex flex-col items-center justify-center relative h-32">
+                    <input type="file" id="compressInput" accept=".pdf" class="absolute inset-0 opacity-0 cursor-pointer z-10" onchange="handleFileSelect('compress')">
+                    <p id="compressFileName" class="text-sm font-medium text-rose-600 truncate max-w-[200px]">Select PDF</p>
+                </div>
+                <div id="compressOptions" class="hidden flex-col gap-3">
+                    <label class="text-xs font-bold text-gray-400 uppercase tracking-wide">Compression Level</label>
+                    <div class="flex justify-between text-xs text-gray-400 px-1">
+                        <span>Low</span>
+                        <span>Med</span>
+                        <span>High</span>
+                    </div>
+                    <input type="range" id="compressLevel" min="0.1" max="0.9" step="0.1" value="0.5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                </div>
+                <div class="flex-1"></div>
+                <button id="btn-compress-action" onclick="processCompress()" disabled class="w-full bg-rose-500 text-white font-semibold py-4 rounded-xl shadow-lg shadow-rose-200 btn-press disabled:opacity-50">Compress PDF</button>
+            </div>
+        </div>
+
+        <!-- 16. TINT TOOL -->
+        <div id="tool-tint" class="screen flex-col h-full hidden bg-white">
+            <div class="p-6 flex-1 flex flex-col gap-6">
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-gray-800">Page Color</h3>
+                    <p class="text-xs text-gray-500">Change background color.</p>
+                </div>
+                <div class="bg-amber-50/50 border-2 border-dashed border-amber-200 rounded-xl p-6 flex flex-col items-center justify-center relative h-32">
+                    <input type="file" id="tintInput" accept=".pdf" class="absolute inset-0 opacity-0 cursor-pointer z-10" onchange="handleFileSelect('tint')">
+                    <p id="tintFileName" class="text-sm font-medium text-amber-600 truncate max-w-[200px]">Select PDF</p>
+                </div>
+                <div id="tintOptions" class="hidden flex-col gap-4">
+                    <div class="flex gap-2 justify-center">
+                        <button onclick="setTintColor('#fefce8')" class="w-8 h-8 rounded-full bg-yellow-50 border border-gray-200"></button>
+                        <button onclick="setTintColor('#f0f9ff')" class="w-8 h-8 rounded-full bg-sky-50 border border-gray-200"></button>
+                        <button onclick="setTintColor('#f0fdf4')" class="w-8 h-8 rounded-full bg-green-50 border border-gray-200"></button>
+                        <button onclick="setTintColor('#18181b')" class="w-8 h-8 rounded-full bg-zinc-900 border border-gray-200"></button>
+                    </div>
+                    <input type="color" id="tintColor" value="#fefce8" class="w-full h-10 p-1 rounded-lg border border-gray-200">
+                </div>
+                <div class="flex-1"></div>
+                <button id="btn-tint-action" onclick="processTint()" disabled class="w-full bg-amber-500 text-white font-semibold py-4 rounded-xl shadow-lg shadow-amber-200 btn-press disabled:opacity-50">Apply Color</button>
+            </div>
+        </div>
+
     </main>
 
     <!-- Overlay Loader -->
@@ -349,386 +600,10 @@
     <!-- Hidden Canvas for Notebook Generation -->
     <canvas id="notebookCanvas" width="800" height="1100"></canvas>
 
+    <script type="module" src="js/main.js"></script>
     <script>
-        lucide.createIcons();
-        const { PDFDocument, rgb, degrees } = PDFLib;
-        
-        // --- STATE MANAGEMENT ---
-        let selectedFiles = {};
-        let gridN = 2; 
-        let inkColor = 'blue';
-
-        // --- NAVIGATION ---
-        function showHome() {
-            document.querySelectorAll('.screen').forEach(el => el.classList.remove('active', 'flex'));
-            document.querySelectorAll('.screen').forEach(el => el.classList.add('hidden'));
-            document.getElementById('screen-home').classList.remove('hidden');
-            document.getElementById('screen-home').classList.add('active', 'flex');
-            document.getElementById('headerBackBtn').classList.add('hidden');
-            resetForms();
-        }
-
-        function openTool(toolId) {
-            document.getElementById('screen-home').classList.add('hidden');
-            document.getElementById('screen-home').classList.remove('active');
-            
-            const target = document.getElementById(`tool-${toolId}`);
-            target.classList.remove('hidden');
-            target.classList.add('active', 'flex');
-            document.getElementById('headerBackBtn').classList.remove('hidden');
-        }
-
-        function resetForms() {
-            selectedFiles = {};
-            document.querySelectorAll('input').forEach(i => i.value = '');
-            document.querySelectorAll('button[id^="btn-"]').forEach(b => b.disabled = true);
-            document.querySelectorAll('[id$="List"]').forEach(l => {l.innerHTML=''; l.classList.add('hidden')});
-            document.querySelectorAll('[id$="Options"]').forEach(o => {o.classList.remove('flex'); o.classList.add('hidden')});
-            document.querySelectorAll('[id$="FileName"]').forEach(t => t.innerText = "Select File");
-        }
-
-        // --- FILE HANDLING ---
-        function handleFileSelect(type) {
-            const inputId = type === 'img2pdf' ? 'img2pdfInput' : (type === 'merge' ? 'mergeInput' : `${type}Input`);
-            const input = document.getElementById(inputId);
-            const files = Array.from(input.files);
-            
-            if (!files.length) return;
-            selectedFiles[type] = files;
-            const btn = document.getElementById(`btn-${type}-action`);
-
-            if (type === 'merge') {
-                const list = document.getElementById('mergeFileList');
-                list.classList.remove('hidden');
-                list.innerHTML = files.map(f => `<div class="bg-gray-50 p-3 rounded-lg flex items-center gap-2 text-xs text-gray-700 border border-gray-100"><i data-lucide="file" class="w-3 h-3 text-red-500"></i> ${f.name}</div>`).join('');
-                lucide.createIcons();
-            } else if (type === 'img2pdf') {
-                const list = document.getElementById('img2pdfList');
-                list.classList.remove('hidden');
-                list.innerHTML = files.map(f => `<div class="bg-gray-50 p-3 rounded-lg flex items-center gap-2 text-xs text-gray-700 border border-gray-100"><i data-lucide="image" class="w-3 h-3 text-green-500"></i> ${f.name}</div>`).join('');
-                lucide.createIcons();
-            } else {
-                document.getElementById(`${type}FileName`).innerText = files[0].name;
-                const opts = document.getElementById(`${type}Options`);
-                if(opts) { opts.classList.remove('hidden'); opts.classList.add('flex'); }
-            }
-            btn.disabled = false;
-        }
-
-        // --- UI UTILS ---
-        function toggleLoader(show, title="Processing", text="Please wait...") {
-            const el = document.getElementById('loadingOverlay');
-            document.getElementById('loaderTitle').innerText = title;
-            document.getElementById('loaderText').innerText = text;
-            el.style.display = show ? 'flex' : 'none';
-        }
-
-        function showToast(msg, isError = false) {
-            const t = document.getElementById('toast');
-            document.getElementById('toastMsg').innerText = msg;
-            document.getElementById('toastIcon').innerText = isError ? '❌' : '✅';
-            t.style.opacity = '1';
-            t.style.transform = 'translate(-50%, 0)';
-            setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translate(-50%, 40px)'; }, 3000);
-        }
-
-        // --- FEATURE 1: PDF TO NOTEBOOK (The Star Feature) 🌟 ---
-        function setInk(color, btn) {
-            inkColor = color;
-            document.querySelectorAll('.ink-opt').forEach(b => b.classList.remove('ring-2', 'ring-blue-500'));
-            btn.classList.add('ring-2', 'ring-blue-500');
-        }
-
-        async function processNotebook() {
-            try {
-                toggleLoader(true, "Writing Notebook...", "Converting text to handwriting");
-                const file = selectedFiles['notebook'][0];
-                const arrayBuffer = await file.arrayBuffer();
-                
-                // 1. Extract Text using PDF.js
-                const loadingTask = pdfjsLib.getDocument(arrayBuffer);
-                const pdf = await loadingTask.promise;
-                let fullText = "";
-                
-                // Get text from first 5 pages max to avoid crashing browser on huge books
-                const maxPages = Math.min(pdf.numPages, 10); 
-                for(let i=1; i<=maxPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const textContent = await page.getTextContent();
-                    const pageText = textContent.items.map(item => item.str).join(' ');
-                    fullText += pageText + "\n\n";
-                }
-
-                if(!fullText.trim()) throw new Error("No text found in PDF (scanned?)");
-
-                // 2. Setup Canvas
-                const canvas = document.getElementById('notebookCanvas');
-                const ctx = canvas.getContext('2d');
-                const pdfDoc = await PDFDocument.create();
-
-                // 3. Drawing Configuration
-                const lineHeight = 30;
-                const margin = 80;
-                const startY = 80;
-                const maxWidth = canvas.width - margin - 40;
-                
-                // Helper to draw one page background
-                function drawPageBackground() {
-                    ctx.fillStyle = "#fffbeb"; // Very light yellow/paper color
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    
-                    // Draw Lines
-                    ctx.strokeStyle = "#94a3b8"; // Light Blue/Gray lines
-                    ctx.lineWidth = 1;
-                    for(let y = startY; y < canvas.height - 40; y += lineHeight) {
-                        ctx.beginPath();
-                        ctx.moveTo(0, y);
-                        ctx.lineTo(canvas.width, y);
-                        ctx.stroke();
-                    }
-                    
-                    // Draw Margin
-                    ctx.strokeStyle = "#ef4444"; // Red Margin
-                    ctx.lineWidth = 2;
-                    ctx.beginPath();
-                    ctx.moveTo(margin, 0);
-                    ctx.lineTo(margin, canvas.height);
-                    ctx.stroke();
-                }
-
-                // 4. Text Wrapping & Rendering Logic
-                ctx.font = "24px 'Patrick Hand', cursive";
-                const words = fullText.split(' ');
-                let x = margin + 10;
-                let y = startY - 5; // Align with line
-                
-                // Start First Page
-                drawPageBackground();
-                
-                let wordIndex = 0;
-                while(wordIndex < words.length) {
-                    const word = words[wordIndex];
-                    const metrics = ctx.measureText(word + " ");
-                    
-                    if (x + metrics.width > maxWidth) {
-                        x = margin + 10;
-                        y += lineHeight;
-                        
-                        // New Page Check
-                        if (y > canvas.height - 50) {
-                            // Save current canvas to PDF
-                            const imgData = canvas.toDataURL('image/jpeg', 0.8);
-                            const imgEmbed = await pdfDoc.embedJpg(imgData);
-                            const page = pdfDoc.addPage([canvas.width, canvas.height]);
-                            page.drawImage(imgEmbed, { x: 0, y: 0, width: canvas.width, height: canvas.height });
-                            
-                            // Reset for new page
-                            drawPageBackground();
-                            y = startY - 5;
-                        }
-                    }
-                    
-                    // Ink Color Logic
-                    if(inkColor === 'mixed') {
-                         const colors = ['#1e3a8a', '#dc2626', '#0f766e', '#000000'];
-                         // Randomly change color sometimes or for specific words (simplified: random)
-                         ctx.fillStyle = Math.random() > 0.9 ? colors[Math.floor(Math.random() * colors.length)] : '#1e3a8a';
-                    } else if (inkColor === 'blue') {
-                        ctx.fillStyle = '#1e3a8a'; // Deep Blue Ink
-                    } else {
-                        ctx.fillStyle = '#1f2937'; // Black Ink
-                    }
-
-                    // Slight rotation for handwriting realism
-                    ctx.save();
-                    ctx.translate(x, y);
-                    ctx.rotate((Math.random() - 0.5) * 0.05); // Subtle jitter
-                    ctx.fillText(word, 0, 0);
-                    ctx.restore();
-                    
-                    x += metrics.width;
-                    wordIndex++;
-                }
-
-                // Save final page
-                const imgData = canvas.toDataURL('image/jpeg', 0.8);
-                const imgEmbed = await pdfDoc.embedJpg(imgData);
-                const page = pdfDoc.addPage([canvas.width, canvas.height]);
-                page.drawImage(imgEmbed, { x: 0, y: 0, width: canvas.width, height: canvas.height });
-
-                const pdfBytes = await pdfDoc.save();
-                download(pdfBytes, `notebook-${file.name}`, "application/pdf");
-                showToast("Notebook Created! 📒");
-
-            } catch(e) {
-                console.error(e);
-                showToast(e.message || "Could not read PDF Text", true);
-            } finally {
-                toggleLoader(false);
-            }
-        }
-
-        // --- FEATURE 2: PROTECT PDF (Fixed) 🔒 ---
-        async function processProtect() {
-            try {
-                toggleLoader(true, "Locking PDF...");
-                const file = selectedFiles['protect'][0];
-                const password = document.getElementById('pdfPassword').value;
-                
-                if(!password) throw new Error("Please enter a password");
-
-                const arrayBuffer = await file.arrayBuffer();
-                const pdfDoc = await PDFDocument.load(arrayBuffer);
-                
-                // Explicitly defining encryption details to ensure it works
-                const encryptedPdfBytes = await pdfDoc.save({
-                    userPassword: password,
-                    ownerPassword: password, // Important to set both for simple locking
-                    permissions: {
-                        printing: 'highResolution',
-                        modifying: false,
-                        copying: false,
-                        annotating: false,
-                    },
-                });
-
-                download(encryptedPdfBytes, `protected-${file.name}`, "application/pdf");
-                showToast("PDF Locked Successfully 🔒");
-            } catch(e) {
-                console.error(e);
-                showToast("Protection Failed", true);
-            } finally {
-                toggleLoader(false);
-            }
-        }
-
-        // --- FEATURE 3: MERGE ---
-        async function processMerge() {
-            try {
-                toggleLoader(true);
-                const files = selectedFiles['merge'];
-                const mergedPdf = await PDFDocument.create();
-                for (const file of files) {
-                    const pdf = await PDFDocument.load(await file.arrayBuffer());
-                    const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
-                    pages.forEach(p => mergedPdf.addPage(p));
-                }
-                download(await mergedPdf.save(), "merged.pdf", "application/pdf");
-                showToast("Merged!");
-            } catch(e) { showToast("Merge Failed", true); } finally { toggleLoader(false); }
-        }
-
-        // --- FEATURE 4: SPLIT ---
-        async function processSplit() {
-            try {
-                toggleLoader(true);
-                const file = selectedFiles['split'][0];
-                const range = document.getElementById('splitPages').value;
-                if(!range) throw new Error("Enter pages");
-                
-                const pdfDoc = await PDFDocument.load(await file.arrayBuffer());
-                const newPdf = await PDFDocument.create();
-                const total = pdfDoc.getPageCount();
-                let indices = new Set();
-                
-                range.split(',').forEach(part => {
-                    if (part.includes('-')) {
-                        const [s, e] = part.split('-').map(Number);
-                        if(s && e) for(let i=s; i<=e; i++) indices.add(i-1);
-                    } else { const p = Number(part); if(p) indices.add(p-1); }
-                });
-
-                const arr = Array.from(indices).filter(i => i>=0 && i<total);
-                if(!arr.length) throw new Error("Invalid pages");
-                
-                (await newPdf.copyPages(pdfDoc, arr)).forEach(p => newPdf.addPage(p));
-                download(await newPdf.save(), `split-${file.name}`, "application/pdf");
-                showToast("Splitted!");
-            } catch(e) { showToast(e.message, true); } finally { toggleLoader(false); }
-        }
-
-        // --- FEATURE 5: IMG TO PDF ---
-        async function processImgToPdf() {
-            try {
-                toggleLoader(true);
-                const files = selectedFiles['img2pdf'];
-                const pdfDoc = await PDFDocument.create();
-                for (const file of files) {
-                    const buff = await file.arrayBuffer();
-                    let img = file.type === 'image/png' ? await pdfDoc.embedPng(buff) : await pdfDoc.embedJpg(buff);
-                    const page = pdfDoc.addPage([img.width, img.height]);
-                    page.drawImage(img, {x:0, y:0, width:img.width, height:img.height});
-                }
-                download(await pdfDoc.save(), "images.pdf", "application/pdf");
-                showToast("PDF Created!");
-            } catch(e) { showToast("Error", true); } finally { toggleLoader(false); }
-        }
-
-        // --- FEATURE 6: PDF TO IMAGE ---
-        async function processPdfToImg() {
-            try {
-                toggleLoader(true, "Rendering...");
-                const file = selectedFiles['pdf2img'][0];
-                const pdf = await pdfjsLib.getDocument(await file.arrayBuffer()).promise;
-                const zip = new JSZip();
-
-                for (let i=1; i<=pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const viewport = page.getViewport({scale: 1.5});
-                    const canvas = document.createElement('canvas');
-                    canvas.width = viewport.width; canvas.height = viewport.height;
-                    await page.render({canvasContext: canvas.getContext('2d'), viewport}).promise;
-                    zip.file(`page-${i}.jpg`, canvas.toDataURL('image/jpeg', 0.8).split(',')[1], {base64:true});
-                }
-                download(await zip.generateAsync({type:"blob"}), `${file.name}-images.zip`, "application/zip");
-                showToast("Downloaded ZIP!");
-            } catch(e) { showToast("Failed", true); } finally { toggleLoader(false); }
-        }
-
-        // --- FEATURE 7: COLLAGE ---
-        function selectGrid(n, btn) {
-            gridN = n;
-            document.querySelectorAll('.grid-opt').forEach(b => b.classList.remove('bg-indigo-50', 'text-indigo-700'));
-            btn.classList.add('bg-indigo-50', 'text-indigo-700');
-        }
-
-        async function processGrid() {
-            try {
-                toggleLoader(true);
-                const file = selectedFiles['grid'][0];
-                const srcDoc = await PDFDocument.load(await file.arrayBuffer());
-                const destDoc = await PDFDocument.create();
-                const count = srcDoc.getPageCount();
-                const [W, H] = [595, 842]; // A4
-                let currPage;
-
-                for(let i=0; i<count; i++) {
-                    const embed = await destDoc.embedPage(srcDoc.getPages()[i]);
-                    const dims = embed.scale(1);
-                    if(i % gridN === 0) currPage = destDoc.addPage([W, H]);
-                    
-                    if(gridN === 2) {
-                        const scale = Math.min((W-40)/dims.width, (H/2-40)/dims.height);
-                        const w = dims.width*scale, h = dims.height*scale;
-                        const y = (i%2===0) ? H/2+(H/2-h)/2 : (H/2-h)/2;
-                        currPage.drawPage(embed, { x: (W-w)/2, y, width: w, height: h });
-                    } else {
-                        const scale = Math.min((W/2-30)/dims.width, (H/2-30)/dims.height);
-                        const w = dims.width*scale, h = dims.height*scale;
-                        const idx = i%4;
-                        const cx = (idx%2===0) ? W/4 : W*0.75;
-                        const cy = (idx<2) ? H*0.75 : H/4;
-                        currPage.drawPage(embed, { x: cx-w/2, y: cy-h/2, width: w, height: h });
-                    }
-                }
-                download(await destDoc.save(), "collage.pdf", "application/pdf");
-                showToast("Collage Ready!");
-            } catch(e) { showToast("Error", true); } finally { toggleLoader(false); }
-        }
-
+        // Init worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     </script>
 </body>
 </html>
-
-
-
